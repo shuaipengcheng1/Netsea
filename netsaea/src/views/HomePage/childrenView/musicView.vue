@@ -12,9 +12,10 @@
       <!-- 歌词 -->
       <div class="lyricBox" @scroll="scoll">
         <div class="lyric" ref="box">
-          <div style="white-space: pre-wrap" >
+          <div style="white-space: pre-wrap">
             <li
               v-for="(item, i) in arr"
+              @click="changeTo(i)"
               :class="`${i == index ? 'item click' : 'item '}`"
             >
               {{ item }}
@@ -38,44 +39,57 @@ export default defineComponent({
     ...mapGetters(["getMusicState"]),
   },
   setup() {
+    // vuex
     var store = useStore();
+    // 歌词
     var lyric = ref("");
+    // 翻译数组
     var tlyric = ref("");
+    // 评论区
     var comment = ref([]);
+    // dom
     var box = ref();
+    // 时间戳数组
     var timeArr: Ref<number[]> = ref([]);
+    // 歌词数组
     var arr: Ref<string[]> = ref([]);
+    // 播放时对应的歌词下标
     var index: Ref<number> = ref(0);
+    // 音乐信息
     var musicstate = ref({
       name: "",
       picUrl: "",
       art: "",
     });
     var music = toRaw(store.getters.getMusic);
-    // 线程 获取歌的进度
+    // 跳转的高度
     var num = 0;
     // 防止一个下标的歌词重复判断
     var item_recheckIndex = -1;
+    // 线程 获取歌的进度
     setInterval(() => {
       for (var i = 0; i < timeArr.value.length; i++) {
         // 判断是否playing
         if (store.getters.getMusicState.isPlaying) {
-          
           // 如果时间戳大于等于 则显示该歌词
-          if (timeArr.value[i] >= store.getters.getTime) {
-            if(i==item_recheckIndex){
-              // 防止重复循环
-
+          if (timeArr.value[i] >= store.getters.getTime && box.value != null) {
+            if (i == item_recheckIndex) {
+              // 防止同样的时间重复循环
               break;
             }
-            item_recheckIndex=i;
-            index.value = i;
-            num=i;
+            item_recheckIndex = i;
+            // 对应的歌词下标
+            index.value = i - 1;
+            // 分享给vuex
+            num = i;
+            store.commit("setlyric", {
+              Index: index.value,
+              arr: arr.value,
+            });
             // console.log(i);
-            // 移动
-            // console.log(box.value.scrollTop)F
-            box.value.scrollTop = num*16; 
-       
+            // 歌词移动
+            box.value.scrollTop = num * 16;
+
             break;
           }
         }
@@ -130,8 +144,13 @@ export default defineComponent({
     var scoll = (e: any) => {
       e.preventDefault();
     };
-
+    // 跳转播放
+    var changeTo = (i: number) => {
+      // 获取时间戳 并且赋值
+      store.commit("setGoto", toRaw(timeArr.value[i]));
+    };
     return {
+      changeTo,
       lyric,
       tlyric,
       comment,
@@ -174,7 +193,6 @@ export default defineComponent({
       }
     }
     .lyricBox {
-      
       width: 500-25px;
       height: 500-25px;
       overflow: hidden;

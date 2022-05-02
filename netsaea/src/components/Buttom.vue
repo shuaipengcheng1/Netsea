@@ -1,7 +1,14 @@
  <template>
   <div class="buttom">
     <!-- 播放键 -->
-    <audio :src="music" controls @timeupdate="update" @play="play" @pause="pause"></audio>
+    <audio
+      ref="audio"
+      :src="music"
+      controls
+      @timeupdate="update"
+      @play="play"
+      @pause="pause"
+    ></audio>
     <!--  -->
   </div>
 </template>
@@ -12,7 +19,9 @@ export default defineComponent({
   name: "App",
   setup() {
     var music = ref();
+    var audio = ref();
     var store = useStore();
+    var num = 0;
     var state = ref({
       picUrl: "",
       name: "",
@@ -24,11 +33,11 @@ export default defineComponent({
 
       store.commit("play");
     };
-    var update =function(e:any){
+    var update = function (e: any) {
       // console.log((e.target.currentTime as number).toFixed(2))
       // 将时间戳给到vuex
-      store.commit("setTime", (e.target.currentTime as number).toFixed(2))
-    }
+      store.commit("setTime", (e.target.currentTime as number).toFixed(2));
+    };
     var pause = () => {
       // 暂停播放
       // console.log("暂停播放");
@@ -59,6 +68,18 @@ export default defineComponent({
         stat = false;
       }
     }, 1000);
+
+    setInterval(() => {
+      // 防止开启时判断
+      if (audio != null && store.getters.getGoto != -1) {
+      // 防止音乐多重判断
+        if (num == store.getters.getGoto) {
+          return;
+        }
+        audio.value.currentTime = store.getters.getGoto;
+        num = store.getters.getGoto;
+      }
+    }, 1000);
     // console.log(music);
     // music.value = store.getters.getMusic.message.data[0].url;
 
@@ -68,7 +89,8 @@ export default defineComponent({
       music,
       play,
       pause,
-      update
+      update,
+      audio,
     };
   },
 });

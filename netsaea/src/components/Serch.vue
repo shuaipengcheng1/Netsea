@@ -8,10 +8,10 @@
       </div>
       <!-- 前进后退 搜索框 -->
       <div class="Controler">
-        <div class="prev">
+        <div class="prev" @click="prev">
           <i class="iconfont icon-anniu_jiantouxiangzuo_o"></i>
         </div>
-        <div class="back">
+        <div class="back" @click="back">
           <i class="iconfont icon-anniu-jiantouxiangyou_o"></i>
         </div>
         <div class="serch">
@@ -21,9 +21,7 @@
     </div>
     <!-- 左侧 -->
     <div class="left">
-        <!-- 登录注册 -->
-
-
+      <!-- 登录注册 -->
 
       <div class="changeColor">
         <i class="iconfont icon-anniu-jiantouxiangyou_o"></i>
@@ -45,11 +43,20 @@
 </template>
  <script lang='ts'>
 import { defineComponent, ref } from "vue";
-
+import { useRouter } from "vue-router";
 export default defineComponent({
   name: "App",
   setup() {
+    var router = useRouter();
     var box = ref(null);
+    var prev = () => {
+      router.go(-1);
+
+    };
+    var back = () => {
+      router.go(1);
+
+    };
     console.log(box);
     var color = ref("background-color:rgb(255, 148, 166);");
     //   可以变更的颜色数组
@@ -68,7 +75,6 @@ export default defineComponent({
       },
     ]);
     var change = (i: number) => {
-  
       color.value = colorArr.value[i].value;
     };
     return {
@@ -76,13 +82,15 @@ export default defineComponent({
       colorArr,
       change,
       color,
+      prev,
+      back,
     };
   },
 });
 </script>
 <style lang="less">
 #SerchBox {
-    transition: .2s all;
+  transition: 0.2s all;
   width: 100%;
   background-color: rgb(255, 148, 166);
   height: 75px;

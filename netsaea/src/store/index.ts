@@ -17,7 +17,19 @@ export default createStore({
     isPurse: false,
     // 用户信息
     // 时间戳
-    time: 0
+    time: 0,
+    lyric:{
+      // 歌曲小标
+      Index:0,
+      // 歌词数组
+      lyricarr:[]
+    },
+    // 跳转的时间
+    gotoTime:-1,
+    position:{
+      x:"",
+      y:""
+    }
   },
   // 获取处理后的信息
   getters: {
@@ -35,6 +47,15 @@ export default createStore({
     },
     getTime(state){
       return state.time;
+    },
+    getGoto(state){
+      return state.gotoTime
+    },
+    getLivelyric(state){
+      return state.lyric.lyricarr[state.lyric.Index]
+    },
+    getPosition(state){
+      return state.position
     }
   },
   // 处理同步逻辑
@@ -65,8 +86,23 @@ export default createStore({
     },
     setTime(state,time){
         state.time=time;
+    },
+    // 共享的播放时间戳  后期做一个漂浮歌词
+    setlyric(state,data){
+      var {Index,arr} = data;
+      state.lyric.Index=Index
+      state.lyric.lyricarr=arr
+    },
+    setGoto(state,time){
+      state.gotoTime=time
+    },
+    setOffset(state,position){
+      var {x,y} = position
+      state.position.x=x
+      state.position.y=y
+
+
     }
-    // 共享的播放事件戳
   },
   // 处理异步逻辑
   actions: {
