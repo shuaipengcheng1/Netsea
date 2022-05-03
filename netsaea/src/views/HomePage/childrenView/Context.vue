@@ -230,18 +230,55 @@ export default defineComponent({
       // 获取歌曲信息
       axios({
         method: "GET",
-        url: `https://autumnfish.cn/song/url?id=${item.id}&br=320000`,
+        url: `https://autumnfish.cn/song/url?id=${item.id}&br=128000`,
       }).then((v) => {
         item.message = v.data;
         // 存放在vuex中
         store.commit("setMusic", toRaw(item));
-        console.log(item)
+        console.log(item);
         router.push({
           path: "/music",
         });
       });
-  
     };
+    var value = "";
+    // 等待搜索结果s
+    setInterval(() => {
+      var arr = store.getters.getSerch;
+      if (arr.length != 0 && value != arr[0].name) {
+        console.log("pass");
+
+        // 防止重复
+        value = arr[0].name;
+        // 回到第一页
+        pages.value=1;
+        router.push({
+          path:"/"
+        })
+        var songArray: song[] = [];
+        Songs = [];
+
+        arr.forEach((item: any) => {
+          var s = new song(item.id, item.name, item.picUrl, item.art);
+          songArray.push(s);
+        });
+        Songs = songArray;
+        // 清空vuex
+        store.commit('setSerch',[])
+
+        console.log(Songs.values);
+        showArr.value = [];
+        //  计算公式  page-1*8 -> page*8
+        var startIndex = (pages.value - 1) * 8;
+        console.log(startIndex);
+        for (var i = startIndex; i < 8; i++) {
+          // 要显示的数据
+          console.log(Songs[i]);
+          showArr.value.push(Songs[i]);
+        }
+        console.log(showArr.value);
+      }
+    }, 1000);
     return {
       showArr,
       Pull,

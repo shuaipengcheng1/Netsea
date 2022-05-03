@@ -15,7 +15,14 @@
           <i class="iconfont icon-anniu-jiantouxiangyou_o"></i>
         </div>
         <div class="serch">
-          <input type="text" name="" id="" placeholder="搜搜看" />
+          <input
+            @keydown.enter="Serch"
+            v-model="value"
+            type="text"
+            name=""
+            id=""
+            placeholder="搜搜看"
+          />
         </div>
       </div>
     </div>
@@ -42,20 +49,68 @@
   </div>
 </template>
  <script lang='ts'>
-import { defineComponent, ref } from "vue";
+import axios from "axios";
+import { defineComponent, ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 export default defineComponent({
   name: "App",
   setup() {
+    var store = useStore();
     var router = useRouter();
+    var value = ref("");
     var box = ref(null);
+    var arr: object[] = [];
     var prev = () => {
       router.go(-1);
-
     };
     var back = () => {
       router.go(1);
+    };
+    var Serch = () => {
+      arr = toRaw(store.getters.getSerch);
 
+      console.log("回车");
+      if (value.value != "") {
+        axios({
+          method: "GET",
+          url: `https://autumnfish.cn/search?keywords=${value.value}`,
+        }).then((v) => {
+          // 搜索结果
+          console.log(v.data.result.songs); //art id name picUrl
+          // songs[0].id .name
+          var id: number = 0;
+          var name: string = "";
+
+          v.data.result.songs.forEach((item: any, index: number) => {
+            // 歌曲id
+            id = item.id;
+            // 歌名
+            name = item.name;
+            axios({
+              method: "GET",
+              url: `https://autumnfish.cn/song/detail?ids=${id}`,
+            }).then((v) => {
+              // 歌手
+              // console.log(v.data.songs[0].al.name);
+              // // 图片
+              // console.log(v.data.songs[0].al.picUrl);
+console.log(v.data)
+              arr.push({
+                art: v.data.songs[0].ar[0].name,
+                id,
+                name,
+                picUrl: v.data.songs[0].al.picUrl,
+              });
+            });
+          });
+          // 将arr共享给ShowArr
+          console.log(arr);
+          store.commit("setSerch", arr);
+          // arr = [];
+          // 根据id搜索
+        });
+      }
     };
     console.log(box);
     var color = ref("background-color:rgb(255, 148, 166);");
@@ -84,6 +139,8 @@ export default defineComponent({
       color,
       prev,
       back,
+      value,
+      Serch,
     };
   },
 });

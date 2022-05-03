@@ -29,7 +29,8 @@ export default createStore({
     position:{
       x:"",
       y:""
-    }
+    },
+    serch:[]
   },
   // 获取处理后的信息
   getters: {
@@ -56,6 +57,9 @@ export default createStore({
     },
     getPosition(state){
       return state.position
+    },
+    getSerch(state){
+      return state.serch
     }
   },
   // 处理同步逻辑
@@ -102,6 +106,9 @@ export default createStore({
       state.position.y=y
 
 
+    },
+    setSerch(state,data){
+      state.serch=data
     }
   },
   // 处理异步逻辑

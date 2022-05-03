@@ -32,7 +32,7 @@ export default defineComponent({
   setup() {
     var store = useStore();
 
-    var move = (e) => {
+    var move = () => {
       // var x = e.clientX;
       // var y = e.clientY;
       // // console.log(e,x,y)
